@@ -7,9 +7,14 @@
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development wp",
-    "prod": "cross-env NODE_ENV=production wp"
+    "prod": "cross-env NODE_ENV=production wp",
+    "sync": "cap sync",
+    "emulate-android": "cap run android",
+    "build": "run-s prod sync",
+    "run-android": "run-s build emulate-android"
   },
   "dependencies": {
+    "@capacitor/android": "^3.1.2",
     "@capacitor/core": "^3.1.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"

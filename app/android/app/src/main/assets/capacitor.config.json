@@ -1,0 +1,6 @@
+{
+	"appId": "interpause.metaTTT",
+	"appName": "MetaTTT",
+	"webDir": "dist",
+	"bundledWebRuntime": false
+}
