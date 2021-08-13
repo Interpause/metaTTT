@@ -32,5 +32,5 @@ io.on('connection', (sock) => {
 })
 
 server.listen(3000, () => {
-	console.info('Listening on: ', server.address() || 'unknown')
+	console.info('Listening on: ', server.address() ?? 'unknown')
 })

@@ -1,10 +1,10 @@
-import { CapacitorConfig } from '@capacitor/cli';
+import { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
-  appId: 'interpause.metaTTT',
-  appName: 'MetaTTT',
-  webDir: 'dist',
-  bundledWebRuntime: false
-};
+	appId: 'interpause.metaTTT',
+	appName: 'MetaTTT',
+	webDir: 'dist',
+	bundledWebRuntime: false,
+}
 
-export default config;
+export default config
