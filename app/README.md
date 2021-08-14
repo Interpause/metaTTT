@@ -11,3 +11,7 @@ HTMLWebpackPlugin was added so that I could use `output.clean` that comes with W
 I followed <https://capacitorjs.com/docs> to setup Capacitor.
 
 Later, I discovered it was probably not a good idea to exclude Babel, and have added the transpiler into my toolchain. By relying on `ts-loader` piping into `babel-loader` (and the `transpileOnly` option when building for production), I have completely skipped using `@babel/preset-typescript` and `@babel/preset-react` as `tsc` handles both of that for me, yay. Now I only need to configure `@babel/preset-env` to target ES7 (which my research shows is widely supported enough).
+
+Time to add in `twin.macro`, my favourite css-in-js solution: <https://github.com/ben-rogerson/twin.examples/tree/master/react-emotion>.
+
+Turns out `ts-loader` was somehow escaping the `tw` prop. changing tsconfig to preserve jsx fixed it and allowed the `twin.macro` to finally work properly. Debugging this was a pain.
