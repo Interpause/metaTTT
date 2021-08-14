@@ -26,12 +26,21 @@ const config = {
 				exclude: /node_modules/,
 				use: [
 					{
+						loader: 'babel-loader',
+						options: {
+							cacheDirectory: true,
+							presets: [['@babel/preset-env', { targets: 'defaults' }]],
+						},
+					},
+					{
 						loader: 'ts-loader',
 						options: {
 							getCustomTransformers: () => ({
 								before: isDev ? [ReactRefreshTypeScript()] : [],
 							}),
-							transpileOnly: isDev,
+							transpileOnly: !isDev,
+							onlyCompileBundledFiles: true,
+							experimentalFileCaching: true,
 						},
 					},
 				],

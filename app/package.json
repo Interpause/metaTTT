@@ -8,22 +8,23 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development wp",
     "prod": "cross-env NODE_ENV=production wp",
-    "sync": "cap sync",
-    "emulate-android": "cap run android",
-    "build": "run-s prod sync",
-    "run-android": "run-s build emulate-android"
+    "build": "run-s prod && cap sync",
+    "android": "run-s build && cap run android"
   },
   "dependencies": {
     "@capacitor/android": "^3.1.2",
     "@capacitor/core": "^3.1.2",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"    
+    "react-dom": "^17.0.2"
   },
   "devDependencies": {
+    "@babel/core": "^7.15.0",
+    "@babel/preset-env": "^7.15.0",
     "@capacitor/cli": "^3.1.2",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.4.3",
     "@types/react": "^17.0.16",
     "@types/react-dom": "^17.0.9",
+    "babel-loader": "^8.2.2",
     "cross-env": "^7.0.3",
     "html-webpack-plugin": "^5.3.2",
     "react-refresh": "^0.10.0",

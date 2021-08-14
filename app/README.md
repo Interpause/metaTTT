@@ -6,6 +6,8 @@ I decided to customize my toolchain this time so I initialized using <https://cr
 
 I then followed <https://github.com/pmmmwh/react-refresh-webpack-plugin> and <https://github.com/shellscape/webpack-plugin-serve> to setup hot reloads and the dev server.
 
-HTMLWebpackPlugin was added so that I could use `output.clean` that comes with Webpack 5.
+HTMLWebpackPlugin was added so that I could use `output.clean` that comes with Webpack 5. Nice that Webpack 5 also uses Terser for production builds by default.
 
-Lastly, I followed <https://capacitorjs.com/docs> to setup Capacitor.
+I followed <https://capacitorjs.com/docs> to setup Capacitor.
+
+Later, I discovered it was probably not a good idea to exclude Babel, and have added the transpiler into my toolchain. By relying on `ts-loader` piping into `babel-loader` (and the `transpileOnly` option when building for production), I have completely skipped using `@babel/preset-typescript` and `@babel/preset-react` as `tsc` handles both of that for me, yay. Now I only need to configure `@babel/preset-env` to target ES7 (which my research shows is widely supported enough).
