@@ -32,7 +32,7 @@ const plugins = [
 
 if (process.env.NODE_ENV === 'production') {
 	console.log('[metattt-app] Adding production babel plugins...')
-	//plugins.push('transform-remove-console')
+	plugins.push('transform-remove-console')
 }
 
 module.exports = { presets, plugins, babelrcRoots }

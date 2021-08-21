@@ -1,1 +1,5 @@
-export * from './Game'
+export * from './src/config'
+export * from './src/enums'
+export * from './src/game'
+export * from './src/state'
+export * from './src/room'

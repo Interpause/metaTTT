@@ -4,31 +4,19 @@
  */
 import { enablePatches, applyPatches, Patch, produceWithPatches } from 'immer'
 export type { Patch } from 'immer'
+import cloneDeep from 'lodash.clonedeep'
+
+import { GameConfig, defaultGameConfig } from './config'
+import { GameError } from './enums'
+import {
+	MetaBoardState,
+	createBoard,
+	SquareState,
+	BoardState,
+	winner,
+} from './state'
 
 enablePatches()
-
-export interface GameConfig {
-	/** length of side */
-	size: number
-	/** number of players */
-	numPlayers: number
-	/** coordinate transforms used in checking */
-	checks: [number, number][]
-	/** squares in a line required to win */
-	numLineWin: number
-}
-
-export const defaultGameConfig: Readonly<GameConfig> = {
-	size: 3,
-	numPlayers: 2,
-	checks: [
-		[1, 0], // horizontal
-		[0, 1], // vertical
-		[1, 1], // right diagonal
-		[-1, 1], // left diagonal
-	],
-	numLineWin: 3,
-}
 
 /** first number is board coord, second is square coord (coords in 1D form) */
 export type metaCoord = [number, number]
@@ -53,116 +41,91 @@ export interface Turn {
 	inverseChanges: Patch[]
 }
 
-/** string for player (userId), null for empty, false for draw (not applicable to squares) (trick used where both null & false are falsy) */
-type winner = string | null | false
-
-/** one space on the board */
-export interface SquareState {
-	winner: winner
-	/** states the metaBoard/board/square can be in */
-	state: 'open' | 'occupied' | 'locked'
-}
-
-/** board is made of squares */
-export interface BoardState extends SquareState {
-	/** square 1D coord on board */
-	[coord: number]: SquareState // SquareState | Board recursion works if wanted.
-}
-
-/** representation of metaTTT game state */
-export interface MetaBoardState extends BoardState {
-	/** current unlocked board */
-	currentBoard: number | null
-	/** board 1D coord on metaBoard */
-	[coord: number]: BoardState
-	/** game config */
+/** the important parts that need to be saved when saving a Game */
+export interface GameSave {
+	players: string[]
+	state: MetaBoardState
 	config: GameConfig
-}
-
-export function createBoard(options?: { config?: GameConfig }): MetaBoardState {
-	const { config = defaultGameConfig } = options ?? {}
-	const newSquare: SquareState = {
-		winner: null,
-		state: 'open',
-	}
-
-	const sizeArr = [...Array(config.size ** 2).keys()]
-
-	return {
-		config,
-		currentBoard: null,
-		...newSquare,
-		...sizeArr.map(() => ({
-			...newSquare,
-			...sizeArr.map(() => newSquare),
-		})),
-	}
-}
-
-export enum GameError {
-	/** coord exceeds range of board */
-	ILLEGAL_MOVE_COORD = 'ILLEGAL_MOVE_COORD',
-	/** move placing in locked square */
-	ILLEGAL_MOVE_LOCKED = 'ILLEGAL_MOVE_LOCKED',
-	/** move placing in occupied square */
-	ILLEGAL_MOVE_OCCUPIED = 'ILLEGAL_MOVE_OCCUPIED',
-	/** move placed when not user's turn */
-	ILLEGAL_MOVE_TURN = 'ILLEGAL_MOVE_TURN',
-	/** tried to go to invalid turn when time travelling */
-	TURN_OUT_OF_RANGE = 'TURN_OUT_OF_RANGE',
+	history: Turn[]
 }
 
 /** Seeing as React likes immutability more, I am starting to wonder if I should convert GameState back to entity-component like rather than a class */
 export class Game {
-	/** game state, should be treated as if readonly externally */
-	state: MetaBoardState
+	/** internal game state */
+	protected _state: MetaBoardState
+	/** copy of Game state */
+	get state() {
+		// TODO: reconsider advantages and disadvantages of deepcopying stuff
+		return cloneDeep(this._state)
+	}
 
 	/** config of this game */
 	get config() {
-		return this.state.config
+		return this._state.config
 	}
 
 	/** array of 0 to size**2, useful for iterating */
-	sizeArr: number[]
+	sizeArr: readonly number[]
 
 	/** current turn */
-	turn: number
+	get turn() {
+		return this._turn
+	}
+	protected _turn: number
 
 	/** total turns based on history */
 	get totalTurns() {
-		return this.history.length
+		return this._history.length
 	}
 
 	get currentPlayer() {
-		return this.players[this.turn % this.players.length]
+		return this.players[this._turn % this.players.length]
+	}
+
+	get numPlayers() {
+		return this.players.length
 	}
 
 	get winner() {
-		return this.state.winner
+		return this._state.winner
 	}
 
 	/** history of board moves */
-	history: Turn[]
+	get history() {
+		return this._history
+	}
+	protected _history: Turn[]
 
-	players: string[]
+	/** yes, you can free set the players */
+	public players: string[]
 
-	constructor(props: {
-		players: string[]
-		state?: MetaBoardState
-		config?: GameConfig
-		history?: Turn[]
-	}) {
-		// must be done first since this.config is a getter
-		this.state =
-			props.state ?? createBoard({ config: props.config ?? defaultGameConfig })
-		this.players = props.players
-		this.history = props.history ?? []
-		this.turn = props.history?.length ?? 0
-		this.sizeArr = [...Array(this.config.size ** 2).keys()]
+	constructor(initialState?: Partial<GameSave>) {
+		const {
+			players = [],
+			history = [],
+			config = defaultGameConfig,
+			state,
+		} = initialState ?? {}
+
+		this._state = state ?? createBoard({ config })
+		this.players = players
+		this._history = history
+		this._turn = history.length
+		this.sizeArr = Object.freeze([...Array(config.size ** 2).keys()])
+	}
+
+	/** get what is needed to save game */
+	getSave(): GameSave {
+		return {
+			players: this.players,
+			state: this._state,
+			config: this.config,
+			history: this._history,
+		}
 	}
 
 	/** follows rules when updating board state recursively */
-	changeBoardState(
+	protected changeBoardState(
 		board: SquareState | BoardState,
 		newState: 'open' | 'occupied' | 'locked',
 	) {
@@ -179,23 +142,23 @@ export class Game {
 	/** allows time travel. return Patch[] to allow server to propagate changes to client */
 	gotoTurn(turn: number) {
 		if (turn < 0 || turn > this.totalTurns) throw GameError.TURN_OUT_OF_RANGE
-		const isUndo = turn < this.turn
+		const isUndo = turn < this._turn
 		let patches = Array<Patch>()
 		if (isUndo) {
-			const toUndo = this.history.slice(turn, this.turn).reverse()
+			const toUndo = this._history.slice(turn, this._turn).reverse()
 			patches = patches.concat(...toUndo.map((t) => t.inverseChanges))
 		} else {
-			const toRedo = this.history.slice(this.turn, turn)
+			const toRedo = this._history.slice(this._turn, turn)
 			patches = patches.concat(...toRedo.map((t) => t.changes))
 		}
 		this.applyPatches(patches)
-		this.turn = turn
+		this._turn = turn
 		return patches
 	}
 
 	/** used to apply patches sent from the server to client */
 	applyPatches(patches: Patch[]) {
-		this.state = applyPatches(this.state, patches)
+		this._state = applyPatches(this._state, patches)
 	}
 
 	/** places a move on the board. returns Patch[] for allowing server to propagate changes to client */
@@ -209,22 +172,22 @@ export class Game {
 
 		// update function
 		const [nextState, patches, inversePatches] = produceWithPatches(
-			this.state,
+			this._state,
 			(draft) => {
-				const square = draft[c1]![c2]!
-				const nextBoard = draft[c2]!
+				const board = draft[c1]!
+				const square = board[c2]!
 
 				// actually place move
 				square.winner = player
 				square.state = 'occupied'
 
 				// update wins
-				const boardWinner = this.check(nextBoard)
+				const boardWinner = this.check(board)
 				if (boardWinner !== null) {
-					nextBoard.winner = boardWinner
-					this.changeBoardState(nextBoard, 'occupied')
+					board.winner = boardWinner // could be false if draw
+					this.changeBoardState(board, 'occupied')
 
-					if (nextBoard.winner) {
+					if (board.winner) {
 						const metaWinner = this.check(draft)
 						if (metaWinner !== null) {
 							draft.winner = metaWinner
@@ -234,6 +197,7 @@ export class Game {
 				}
 
 				// update which board is unlocked
+				const nextBoard = draft[c2]!
 				if (nextBoard.state === 'occupied') {
 					draft.currentBoard = null
 					this.changeBoardState(draft, 'open')
@@ -244,16 +208,16 @@ export class Game {
 				}
 			},
 		)
-		this.state = nextState as MetaBoardState
+		this._state = nextState as MetaBoardState
 
 		// push the move into history, splicing out the future if redo-ing from past
-		this.history.splice(this.turn, this.totalTurns, {
+		this._history.splice(this._turn, this.totalTurns, {
 			action: move,
-			turn: this.turn,
+			turn: this._turn,
 			changes: patches,
 			inverseChanges: inversePatches,
 		})
-		this.turn = this.totalTurns
+		this._turn = this.totalTurns
 
 		return patches
 	}
@@ -270,7 +234,7 @@ export class Game {
 			const isWin = !this.config.checks.every(([dx, dy]) => {
 				let [x, y] = this.o2D(n) // 2D coord of current square
 
-				for (let i = 0; i < this.config.numLineWin; i++) {
+				for (let i = 1; i < this.config.numLineWin; i++) {
 					// 1D coord of square in line being checked
 					const coord = this.t1D([(x += dx), (y += dy)])
 					if (x < 0 || y < 0 || x >= this.config.size || y >= this.config.size)
@@ -291,7 +255,7 @@ export class Game {
 			coord: [c1, c2],
 			player,
 		} = move
-		const square = this.state[c1]![c2]!
+		const square = this._state[c1]![c2]!
 		if (square.state === 'locked') throw GameError.ILLEGAL_MOVE_LOCKED
 		if (square.state === 'occupied') throw GameError.ILLEGAL_MOVE_OCCUPIED
 		if (player !== this.currentPlayer) throw GameError.ILLEGAL_MOVE_TURN

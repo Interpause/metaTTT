@@ -19,7 +19,7 @@ import {} from '@emotion/react/types/css-prop'
 declare global {
 	namespace JSX {
 		interface IntrinsicAttributes<T> extends DOMAttributes<T> {
-			as?: string
+			as?: keyof HTMLElementTagNameMap
 		}
 	}
 }
