@@ -9,7 +9,7 @@ const { WebpackPluginServe } = require('webpack-plugin-serve')
 const isDev = process.env.NODE_ENV == 'development'
 const outPath = path.resolve(__dirname, 'dist')
 
-console.log('is Development: ', isDev)
+console.log('[metattt-app] is Development: ', isDev)
 
 const config = {
 	mode: isDev ? 'development' : 'production',
@@ -19,6 +19,8 @@ const config = {
 		filename: '[name].bundle.js',
 		clean: true,
 	},
+	// chrome 60 is minimum capacitor supports for android
+	target: 'browserslist',
 	module: {
 		rules: [
 			{
@@ -51,7 +53,7 @@ const config = {
 	},
 	plugins: [
 		new HtmlWebpackPlugin({
-			title: 'Output Management',
+			title: 'MetaTTT 3.0 dev',
 		}),
 		isDev && new ReactRefreshWebpackPlugin(),
 		isDev &&

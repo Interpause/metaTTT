@@ -1,1 +1,1 @@
-export const file = 'this is empty'
+export * from './Game'

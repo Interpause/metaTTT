@@ -16,6 +16,7 @@
     "@capacitor/core": "^3.1.2",
     "@emotion/react": "^11.4.1",
     "@emotion/styled": "^11.3.0",
+    "core-js": "^3.16.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "twin.macro": "^2.6.2"
@@ -32,6 +33,7 @@
     "@types/react-dom": "^17.0.9",
     "babel-loader": "^8.2.2",
     "babel-plugin-macros": "^3.1.0",
+    "babel-plugin-transform-remove-console": "^6.9.4",
     "cross-env": "^7.0.3",
     "html-webpack-plugin": "^5.3.2",
     "react-refresh": "^0.10.0",
@@ -41,5 +43,6 @@
     "webpack": "^5.49.0",
     "webpack-nano": "^1.1.1",
     "webpack-plugin-serve": "^1.5.0"
-  }
+  },
+  "browserslist": "ie 11"
 }

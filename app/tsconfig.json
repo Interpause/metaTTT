@@ -73,7 +73,6 @@
   },
   "include": [
     "index.ts",
-    "./src/**/*",
-    "../common/**/*"
+    "./src/**/*"
   ]
 }

@@ -3,9 +3,11 @@
  * MetaBoard > Board > Squares
  */
 import { enablePatches, applyPatches, Patch, produceWithPatches } from 'immer'
+export type { Patch } from 'immer'
+
 enablePatches()
 
-interface GameConfig {
+export interface GameConfig {
 	/** length of side */
 	size: number
 	/** number of players */
@@ -16,7 +18,7 @@ interface GameConfig {
 	numLineWin: number
 }
 
-const defaultGameConfig: Readonly<GameConfig> = {
+export const defaultGameConfig: Readonly<GameConfig> = {
 	size: 3,
 	numPlayers: 2,
 	checks: [
@@ -28,14 +30,19 @@ const defaultGameConfig: Readonly<GameConfig> = {
 	numLineWin: 3,
 }
 
-interface Move {
-	/** first Coord is board coord, second is square coord (coords in 1D form) */
-	coord: [number, number]
+/** first number is board coord, second is square coord (coords in 1D form) */
+export type metaCoord = [number, number]
+/** regular x, y coord on a specific board */
+export type coord = [number, number]
+
+export interface Move {
+	/** coord of move */
+	coord: metaCoord
 	/** player (userId) that made the move */
 	player: string
 }
 
-interface Turn {
+export interface Turn {
 	/** there might be other action kinds eventually */
 	action: Move
 	/** turn number */
@@ -50,27 +57,49 @@ interface Turn {
 type winner = string | null | false
 
 /** one space on the board */
-interface Square {
+export interface SquareState {
 	winner: winner
 	/** states the metaBoard/board/square can be in */
 	state: 'open' | 'occupied' | 'locked'
 }
 
 /** board is made of squares */
-interface Board extends Square {
+export interface BoardState extends SquareState {
 	/** square 1D coord on board */
-	[coord: number]: Square // Square | Board recursion works if wanted.
+	[coord: number]: SquareState // SquareState | Board recursion works if wanted.
 }
 
 /** representation of metaTTT game state */
-interface MetaBoard extends Board {
+export interface MetaBoardState extends BoardState {
 	/** current unlocked board */
 	currentBoard: number | null
 	/** board 1D coord on metaBoard */
-	[coord: number]: Board
+	[coord: number]: BoardState
+	/** game config */
+	config: GameConfig
 }
 
-enum GameError {
+export function createBoard(options?: { config?: GameConfig }): MetaBoardState {
+	const { config = defaultGameConfig } = options ?? {}
+	const newSquare: SquareState = {
+		winner: null,
+		state: 'open',
+	}
+
+	const sizeArr = [...Array(config.size ** 2).keys()]
+
+	return {
+		config,
+		currentBoard: null,
+		...newSquare,
+		...sizeArr.map(() => ({
+			...newSquare,
+			...sizeArr.map(() => newSquare),
+		})),
+	}
+}
+
+export enum GameError {
 	/** coord exceeds range of board */
 	ILLEGAL_MOVE_COORD = 'ILLEGAL_MOVE_COORD',
 	/** move placing in locked square */
@@ -83,18 +112,21 @@ enum GameError {
 	TURN_OUT_OF_RANGE = 'TURN_OUT_OF_RANGE',
 }
 
-class Game {
-	/** game state */
-	state: MetaBoard
+/** Seeing as React likes immutability more, I am starting to wonder if I should convert GameState back to entity-component like rather than a class */
+export class Game {
+	/** game state, should be treated as if readonly externally */
+	state: MetaBoardState
 
 	/** config of this game */
-	config: GameConfig = defaultGameConfig
+	get config() {
+		return this.state.config
+	}
 
 	/** array of 0 to size**2, useful for iterating */
 	sizeArr: number[]
 
 	/** current turn */
-	turn: number = 0
+	turn: number
 
 	/** total turns based on history */
 	get totalTurns() {
@@ -105,39 +137,41 @@ class Game {
 		return this.players[this.turn % this.players.length]
 	}
 
+	get winner() {
+		return this.state.winner
+	}
+
 	/** history of board moves */
-	history: Turn[] = []
+	history: Turn[]
 
-	players: string[] = []
+	players: string[]
 
-	constructor() {
-		const newSquare: Square = {
-			winner: null,
-			state: 'open',
-		}
+	constructor(props: {
+		players: string[]
+		state?: MetaBoardState
+		config?: GameConfig
+		history?: Turn[]
+	}) {
+		// must be done first since this.config is a getter
+		this.state =
+			props.state ?? createBoard({ config: props.config ?? defaultGameConfig })
+		this.players = props.players
+		this.history = props.history ?? []
+		this.turn = props.history?.length ?? 0
 		this.sizeArr = [...Array(this.config.size ** 2).keys()]
-
-		this.state = {
-			currentBoard: null,
-			...newSquare,
-			...this.sizeArr.map(() => ({
-				...newSquare,
-				...this.sizeArr.map(() => newSquare),
-			})),
-		}
 	}
 
 	/** follows rules when updating board state recursively */
 	changeBoardState(
-		board: Square | Board,
+		board: SquareState | BoardState,
 		newState: 'open' | 'occupied' | 'locked',
 	) {
 		if (board.state !== 'occupied') board.state = newState
 
 		//check if Square or Board
-		if ((board as any)[0]) {
+		if ((board as BoardState)[0]) {
 			this.sizeArr.forEach((n) =>
-				this.changeBoardState((board as any)[n], newState),
+				this.changeBoardState((board as BoardState)[n]!, newState),
 			)
 		}
 	}
@@ -154,9 +188,14 @@ class Game {
 			const toRedo = this.history.slice(this.turn, turn)
 			patches = patches.concat(...toRedo.map((t) => t.changes))
 		}
-		this.state = applyPatches(this.state, patches)
+		this.applyPatches(patches)
 		this.turn = turn
 		return patches
+	}
+
+	/** used to apply patches sent from the server to client */
+	applyPatches(patches: Patch[]) {
+		this.state = applyPatches(this.state, patches)
 	}
 
 	/** places a move on the board. returns Patch[] for allowing server to propagate changes to client */
@@ -205,7 +244,7 @@ class Game {
 				}
 			},
 		)
-		this.state = nextState
+		this.state = nextState as MetaBoardState
 
 		// push the move into history, splicing out the future if redo-ing from past
 		this.history.splice(this.turn, this.totalTurns, {
@@ -220,7 +259,7 @@ class Game {
 	}
 
 	/** checks for who won the board */
-	check(board: Board): winner {
+	check(board: BoardState): winner {
 		let isFull = true
 		for (let n of this.sizeArr) {
 			const square = board[n]! // current square examined
@@ -267,11 +306,8 @@ class Game {
 
 	/** converts 1D coord to 2D ([x,y]) */
 	o2D = (coord1D: number) =>
-		[coord1D % this.config.size, ~~(coord1D / this.config.size)] as [
-			number,
-			number,
-		]
+		[coord1D % this.config.size, ~~(coord1D / this.config.size)] as coord
 
 	/** converts 2D coord ([x,y]) to 1D */
-	t1D = ([x, y]: [number, number]) => y * this.config.size + x
+	t1D = ([x, y]: coord) => y * this.config.size + x
 }

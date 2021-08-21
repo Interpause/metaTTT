@@ -7,9 +7,12 @@
   "license": "UNLICENSED",
   "private": true,
   "devDependencies": {
+    "@babel/core": "^7.15.0",
+    "@babel/preset-env": "^7.15.0",
     "typescript": "4.4.0-beta"
   },
   "dependencies": {
+    "core-js": "^3.16.2",
     "immer": "^9.0.5"
   }
 }
