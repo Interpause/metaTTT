@@ -2,8 +2,9 @@ import tw from 'twin.macro'
 
 import React, { useContext, useState } from 'react'
 
-import MetaBoard from './MetaBoard'
-import { RoomContext, RoomProvider } from './RoomProvider'
+import MetaBoard from './components/MetaBoard'
+import { RoomContext, RoomProvider } from './providers/RoomProvider'
+import { IsogridBackground } from './components/IsogridBackground'
 
 function HelloWorld() {
 	const [state, setState] = useState(true)
@@ -28,6 +29,9 @@ function HelloWorld() {
 export default function App() {
 	return (
 		<>
+			<div tw='absolute inset-0 overflow-hidden z-index[-10]'>
+				<IsogridBackground />
+			</div>
 			<RoomProvider>
 				<HelloWorld />
 			</RoomProvider>

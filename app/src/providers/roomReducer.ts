@@ -35,6 +35,7 @@ export function roomReducer(
 	[room, x]: [Room, number],
 	action: roomAction,
 ): [Room, number] {
+	// TODO: very different logic if room is online
 	try {
 		switch (action.action) {
 			case 'place':

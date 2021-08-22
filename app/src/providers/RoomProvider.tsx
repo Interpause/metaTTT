@@ -4,7 +4,6 @@ import React, {
 	ReactNode,
 	SetStateAction,
 	useCallback,
-	useEffect,
 	useLayoutEffect,
 	useReducer,
 	useState,
@@ -12,14 +11,14 @@ import React, {
 import { defaultRoomConfig, Room, RoomConfig, RoomSave } from 'metattt-common'
 import { createInitialState, roomAction, roomReducer } from './roomReducer'
 import { useStorage } from './StorageProvider'
-import { DefaultPlayerIcon } from './PlayerIcon'
+import { DefaultPlayerIcon } from '../components/PlayerIcon'
 
 export const RoomContext = createContext({} as RoomContextData)
 
 export interface RoomContextData {
-	/** current game being played/displayed */
+	/** current room */
 	room: Room
-	/** dispatch actions to game */
+	/** dispatch actions to room */
 	dispatch: Dispatch<roomAction> // roomAction extend roomAction?
 
 	/** player using the board. constant in online game, rotates between players in local game */
