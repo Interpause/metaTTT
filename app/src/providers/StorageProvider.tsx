@@ -2,54 +2,66 @@
 import { Storage } from '@capacitor/storage'
 import {
 	createContext,
-	ReactNode,
 	useState,
 	useContext,
 	useCallback,
+	SetStateAction,
+	Dispatch,
+	ProviderProps,
 } from 'react'
 
-const initialStorage: Record<string, any> = {}
+/** creates key-value pair in storage, returning Provider that should be wrapped around component & hook to use storage */
+export function createKey<T>(key: string, initial?: T) {
+	const { __LOAD_STORAGE_ON_INIT_IGNORE_ME__: globalStorage } = globalThis as {
+		__LOAD_STORAGE_ON_INIT_IGNORE_ME__?: Record<string, T>
+	}
+	if (globalStorage === undefined)
+		throw 'initStorage must be called before ReactDOM.render!'
+	const initialValue = globalStorage[key] ?? initial
 
-const StorageContext = createContext({
-	state: initialStorage,
-	setState: (newState: Record<string, any>) =>
-		console.error('StorageProvider needed!'),
-})
+	type KeyContextData = {
+		value?: T
+		setValue: Dispatch<SetStateAction<T | undefined>>
+	}
 
-/** Run this before App is rendered */
+	const KeyContext = createContext<KeyContextData>({
+		value: initialValue,
+		setValue: () => {
+			throw 'createKey Provider needed!'
+		},
+	})
+
+	/** provider that should be wrapped around component using the storage */
+	const KeyProvider = (props: Omit<ProviderProps<KeyContextData>, 'value'>) => {
+		const [value, setValue] = useState(initialValue)
+		return <KeyContext.Provider value={{ value, setValue }} {...props} />
+	}
+
+	/** hook to use storage */
+	const useKey = () => {
+		const { value, setValue } = useContext(KeyContext)
+
+		/** save to storage without updating state, useful in some cases */
+		const save = useCallback((newValue: T) => {
+			globalStorage[key] = newValue
+			Storage.set({ key: 'storage', value: JSON.stringify(globalStorage) })
+		}, [])
+
+		/** updates state and save to storage */
+		const update = useCallback((newValue: T) => {
+			setValue(newValue)
+			save(newValue)
+		}, [])
+
+		return [value, update, save] as [typeof value, typeof update, typeof save]
+	}
+
+	return [KeyProvider, useKey] as [typeof KeyProvider, typeof useKey]
+}
+
+/** run this before ReactDOM.render */
 export async function initStorage() {
 	const { value } = await Storage.get({ key: 'storage' })
-	const storage: Record<string, any> =
-		value === null ? initialStorage : JSON.parse(value)
-	;(globalThis as any).__INIT_STORAGE_TEMPORARY_IGNORE_THIS__ = storage
-}
-
-/** Wrap App with this Provider */
-export function StorageProvider({ children }: { children: ReactNode }) {
-	const [state, setState] = useState<Record<string, any>>(
-		(globalThis as any).__INIT_STORAGE_TEMPORARY_IGNORE_THIS__,
-	)
-	return (
-		<StorageContext.Provider value={{ state, setState }}>
-			{children}
-		</StorageContext.Provider>
-	)
-}
-
-/** Use this Hook in order to access objects in storage, defaults to fallback when key not found if provided */
-export function useStorage<T>(key: string): [T | undefined, (v: T) => void]
-export function useStorage<T>(key: string, fallback: T): [T, (v: T) => void]
-export function useStorage<T>(key: string, fallback?: T) {
-	const { state, setState } = useContext(StorageContext)
-	const update = useCallback(
-		(value: T) => {
-			const newState = { ...state, [key]: value }
-			// save every time a key is updated
-			Storage.set({ key: 'storage', value: JSON.stringify(newState) })
-			setState(newState)
-		},
-		[setState],
-	)
-
-	return [state[key] ?? fallback, update]
+	const storage: Record<string, any> = value === null ? {} : JSON.parse(value)
+	;(globalThis as any).__LOAD_STORAGE_ON_INIT_IGNORE_ME__ = storage
 }

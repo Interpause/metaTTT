@@ -1,32 +1,15 @@
 import React, {
 	createContext,
 	Dispatch,
-	ReactNode,
-	SetStateAction,
+	ProviderProps,
 	useCallback,
 	useLayoutEffect,
 	useReducer,
-	useState,
 } from 'react'
 import { defaultRoomConfig, Room, RoomConfig, RoomSave } from 'metattt-common'
-import { createInitialState, roomAction, roomReducer } from './roomReducer'
-import { useStorage } from './StorageProvider'
+import { createInitialState, roomReducer, roomAction } from './roomReducer'
+import { createKey } from './StorageProvider'
 import { DefaultPlayerIcon } from '../components/PlayerIcon'
-
-export const RoomContext = createContext({} as RoomContextData)
-
-export interface RoomContextData {
-	/** current room */
-	room: Room
-	/** dispatch actions to room */
-	dispatch: Dispatch<roomAction> // roomAction extend roomAction?
-
-	/** player using the board. constant in online game, rotates between players in local game */
-	thisPlayer: string
-	setThisPlayer: Dispatch<SetStateAction<string>>
-
-	getPlayerIcon: (pid: string) => JSX.Element
-}
 
 export const defaultLocalConfig: Readonly<RoomConfig> = {
 	...defaultRoomConfig,
@@ -34,35 +17,43 @@ export const defaultLocalConfig: Readonly<RoomConfig> = {
 	players: [...Array(defaultRoomConfig.maxPlayers).keys()].map((i) => `p${i}`),
 }
 
-export function RoomProvider({ children }: { children: ReactNode }) {
-	const [save, setSave] = useStorage<Partial<RoomSave>>('savefile', {
-		config: defaultLocalConfig,
-	})
+export interface RoomContextData {
+	/** current room */
+	room: Room
+	/** player using the board. constant in online game, rotates between players in local game */
+	thisPlayer: string
+	/** dispatch actions to room */
+	dispatch: Dispatch<roomAction> // roomAction extend roomAction?
+
+	getPlayerIcon: (pid: string) => JSX.Element
+}
+
+export const RoomContext = createContext<RoomContextData>({} as RoomContextData)
+
+const [SaveProvider, useSave] = createKey<Partial<RoomSave>>('savefile', {
+	config: defaultLocalConfig,
+})
+
+function RoomProviderInternal(
+	props: Omit<ProviderProps<RoomContextData>, 'value'>,
+) {
+	// initialSave won't be updated
+	const [initialSave, , setSaveSilent] = useSave()
 	// start off with saved local room
-	const [[room], dispatch] = useReducer(roomReducer, createInitialState(save))
-	const game = room.game
-
-	const [thisPlayer, setThisPlayer] = useState(game.players[0]!)
-
-	// run only if local room
-	useLayoutEffect(() => {
-		if (room.isOnline) return
-		setThisPlayer(game.currentPlayer!)
-		setSave(room.getSave()) // save locally every turn
-	}, [game.turn])
+	const [{ room, thisPlayer }, dispatch] = useReducer(
+		roomReducer,
+		createInitialState(initialSave!),
+	)
 
 	useLayoutEffect(() => {
-		;(globalThis as any).Room = room
-	})
+		// initialSave isn't updated
+		setSaveSilent(room.getSave())
+	}, [room.turn])
 
-	const getPlayerIcon = useCallback((pid: string) => {
-		return (
-			{
-				p0: <DefaultPlayerIcon color='red' />,
-				p1: <DefaultPlayerIcon color='blue' />,
-			}[pid] ?? <DefaultPlayerIcon color='black' />
-		)
-	}, [])
+	const getPlayerIcon = useCallback(
+		(pid: string) => <DefaultPlayerIcon color={room.getPlayerColor(pid)} />,
+		[],
+	)
 
 	return (
 		<RoomContext.Provider
@@ -70,11 +61,19 @@ export function RoomProvider({ children }: { children: ReactNode }) {
 				room,
 				dispatch,
 				thisPlayer,
-				setThisPlayer,
 				getPlayerIcon,
 			}}
-		>
-			{children}
-		</RoomContext.Provider>
+			{...props}
+		/>
+	)
+}
+
+export function RoomProvider(
+	props: Omit<ProviderProps<RoomContextData>, 'value'>,
+) {
+	return (
+		<SaveProvider>
+			<RoomProviderInternal {...props} />
+		</SaveProvider>
 	)
 }

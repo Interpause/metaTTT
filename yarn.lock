@@ -4937,15 +4937,10 @@ type-is@^1.6.16, type-is@~1.6.17, type-is@~1.6.18:
     media-typer "0.3.0"
     mime-types "~2.1.24"
 
-typescript@4.4.0-beta:
-  version "4.4.0-beta"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.4.0-beta.tgz#a5b8a3a0d260fa5ce84daa3ab58f7102ad19a655"
-  integrity sha512-qMxA8NzN3igwX8Mii7MXGNW+YeFAkUKyKg+x4F1CCFsO36LqISf1EXXSOLDuRIdGjdVvV53grRxfHjOW65YfMA==
-
-typescript@^4.4.0-beta:
-  version "4.4.0-insiders.20210805"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.4.0-insiders.20210805.tgz#225a003c8bcad188069a29520a3bc9840ce0758e"
-  integrity sha512-pNeBoduMJYUs6Oatyew8OFNWunGXdatQHqUQJX3vy+kYwm39P+5QjiSVTXJhzc+PHnUCJGoJ9BN2bkdY4N9/4A==
+typescript@^4.3.5:
+  version "4.3.5"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.3.5.tgz#4d1c37cc16e893973c45a06886b7113234f119f4"
+  integrity sha512-DqQgihaQ9cUrskJo9kIyW/+g0Vxsk8cDtZ52a3NGh0YNTfpUSArXSohyUGnvbPazEPLu398C0UxmKSOrPumUzA==
 
 unbox-primitive@^1.0.1:
   version "1.0.1"

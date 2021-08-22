@@ -21,20 +21,33 @@ export type roomAction =
 	| {
 			action: 'restartGame'
 	  }
+	| {
+			action: 'changeThisPlayer'
+			player: string
+	  }
+
+export interface RoomReducerState {
+	room: Room
+	render: number
+	thisPlayer: string
+}
 
 export function createInitialState(
 	roomSave: Partial<RoomSave>,
-): [Room, number] {
+): RoomReducerState {
 	const room = new Room(roomSave)
-	// without rewriting Game to be immutable, https://reactjs.org/docs/hooks-faq.html#is-there-something-like-forceupdate
-	return [room, 0]
+	return {
+		room,
+		thisPlayer: room.currentPlayer!,
+		render: 0,
+	}
 }
 
 /** as Game mutates inplace, entire thing must be wrapped in reducer to "play nice" with React rerenders */
 export function roomReducer(
-	[room, x]: [Room, number],
+	{ room, render, thisPlayer }: RoomReducerState,
 	action: roomAction,
-): [Room, number] {
+): RoomReducerState {
 	// TODO: very different logic if room is online
 	try {
 		switch (action.action) {
@@ -54,5 +67,13 @@ export function roomReducer(
 	} catch (e) {
 		console.warn('roomReducer error:', e, action)
 	}
-	return [room, x + 1]
+
+	if (!room.isOnline) thisPlayer = room.currentPlayer!
+
+	return {
+		room,
+		thisPlayer,
+		// without rewriting Game to be immutable, https://reactjs.org/docs/hooks-faq.html#is-there-something-like-forceupdate
+		render: render + 1,
+	}
 }

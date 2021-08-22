@@ -53,11 +53,14 @@ export class Room {
 	}
 
 	get gameHistory() {
-		// TODO: game history very different from room history.
 		return this.game.history
 	}
 
-	get rooomHistory() {
+	get prevTurn() {
+		return this.game.history[this.game.turn - 1] // even when timetravelling
+	}
+
+	get roomHistory() {
 		return []
 	}
 
@@ -98,6 +101,12 @@ export class Room {
 	place(pid: string, move: Move) {
 		if (move.player !== pid) throw GameError.ILLEGAL_MOVE_TURN
 		this.game.place(move)
+	}
+
+	getPlayerColor(pid: string) {
+		const ind = this.game.getPlayerIndex(pid)
+		if (ind === -1) throw RoomError.PLAYER_NOT_IN_ROOM
+		return `hsl(${(ind * (360 / this.numPlayers)) % 360},100%,50%)`
 	}
 
 	start() {

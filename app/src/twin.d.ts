@@ -14,12 +14,3 @@ declare module 'twin.macro' {
 // The css prop
 // https://emotion.sh/docs/typescript#css-prop
 import {} from '@emotion/react/types/css-prop'
-
-// The 'as' prop on styled components
-declare global {
-	namespace JSX {
-		interface IntrinsicAttributes<T> extends DOMAttributes<T> {
-			as?: keyof HTMLElementTagNameMap
-		}
-	}
-}

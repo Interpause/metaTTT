@@ -142,6 +142,7 @@ export function Triangle({ colorSeq, speed, points }: TriProps) {
 	)
 }
 
+import { isEqual } from 'lodash'
 import { ComponentProps, memo } from 'react'
 /** Generates pretty SVG background. */
 export const IsogridBackground = memo(
@@ -246,5 +247,5 @@ export const IsogridBackground = memo(
 			</svg>
 		)
 	},
-	(prev, next) => JSON.stringify(prev) == JSON.stringify(next),
+	(prev, next) => isEqual(prev, next),
 )

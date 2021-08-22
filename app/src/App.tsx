@@ -2,7 +2,7 @@ import tw from 'twin.macro'
 
 import React, { useContext, useState } from 'react'
 
-import MetaBoard from './components/MetaBoard'
+import { MetaBoard } from './components/MetaBoard'
 import { RoomContext, RoomProvider } from './providers/RoomProvider'
 import { IsogridBackground } from './components/IsogridBackground'
 

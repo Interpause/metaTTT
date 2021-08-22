@@ -18,4 +18,6 @@ export enum RoomError {
 	ROOM_ALREADY_FULL = 'ROOM_ALREADY_FULL',
 	/** not enough players */
 	ROOM_NOT_FULL = 'ROOM_NOT_FULL',
+	/** player not in room & hence not authorised */
+	PLAYER_NOT_IN_ROOM = 'PLAYER_NOT_IN_ROOM',
 }
