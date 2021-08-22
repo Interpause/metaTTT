@@ -4,6 +4,7 @@ const presets = [
 		{
 			useBuiltIns: 'usage',
 			corejs: '3.16.2',
+			modules: false,
 		},
 	],
 ]
@@ -28,6 +29,7 @@ const plugins = [
 			pragmaFrag: 'React.Fragment',
 		},
 	],
+	'lodash',
 ]
 
 if (process.env.NODE_ENV === 'production') {

@@ -3,6 +3,7 @@ import tw, { css, styled } from 'twin.macro'
 
 import { metaCoord } from 'metattt-common'
 import { RoomContext } from '../providers/RoomProvider'
+import { isEqual, cloneDeep } from 'lodash'
 
 export const Grid = styled.div`
 	${tw`grid place-content-stretch`}
@@ -24,7 +25,11 @@ export function Square({ coord, winner }: SquareProps) {
 	const { state, currentPlayer } = room.game
 	const [c1, c2] = coord
 
-	const square = state[c1]![c2]!
+	const square = cloneDeep(state[c1]![c2]!)
+	const isPrevious = isEqual(
+		room.gameHistory[room.turn - 1]?.action.coord,
+		coord,
+	)
 	const isDisabled = square.state !== 'open' || currentPlayer !== thisPlayer
 	const pid = winner ?? square.winner
 
@@ -41,7 +46,7 @@ export function Square({ coord, winner }: SquareProps) {
 	return (
 		<button
 			tw='bg-white disabled:cursor-default focus:outline-none hover:bg-gray-200'
-			css={pid && tw`z-10`}
+			css={[pid && tw`z-10`, isPrevious && tw`hidden`]}
 			onMouseDown={onClick}
 			disabled={isDisabled}
 		>

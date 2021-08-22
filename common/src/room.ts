@@ -36,6 +36,31 @@ export class Room {
 		return this.config.isOnline
 	}
 
+	get turn() {
+		return this.game.turn
+	}
+
+	get totalTurns() {
+		return this.game.history
+	}
+
+	get currentPlayer() {
+		return this.game.currentPlayer
+	}
+
+	get winner() {
+		return this.game.winner
+	}
+
+	get gameHistory() {
+		// TODO: game history very different from room history.
+		return this.game.history
+	}
+
+	get rooomHistory() {
+		return []
+	}
+
 	constructor(initialState?: Partial<RoomSave>) {
 		const { gameSave, config = defaultRoomConfig } = initialState ?? {}
 		this.game = new Game(gameSave ?? { config: config.gameConfig })

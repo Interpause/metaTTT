@@ -5,6 +5,9 @@ const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin'
 const ReactRefreshTypeScript = require('react-refresh-typescript')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { WebpackPluginServe } = require('webpack-plugin-serve')
+const LodashModuleReplacementPlugin = require('lodash-webpack-plugin')
+const BundleAnalyzerPlugin =
+	require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 
 const isDev = process.env.NODE_ENV == 'development'
 const outPath = path.resolve(__dirname, 'dist')
@@ -58,6 +61,8 @@ const config = {
 			title: 'MetaTTT 3.0 dev',
 		}),
 		isDev && new ReactRefreshWebpackPlugin(),
+		!isDev && new BundleAnalyzerPlugin(),
+		new LodashModuleReplacementPlugin(),
 		isDev &&
 			new WebpackPluginServe({
 				host: 'localhost',

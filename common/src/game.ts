@@ -4,7 +4,7 @@
  */
 import { enablePatches, applyPatches, Patch, produceWithPatches } from 'immer'
 export type { Patch } from 'immer'
-import cloneDeep from 'lodash.clonedeep'
+import { cloneDeep } from 'lodash'
 
 import { GameConfig, defaultGameConfig } from './config'
 import { GameError } from './enums'
@@ -23,6 +23,7 @@ export type metaCoord = [number, number]
 /** regular x, y coord on a specific board */
 export type coord = [number, number]
 
+/** represents the action of picking a square to place in */
 export interface Move {
 	/** coord of move */
 	coord: metaCoord
@@ -30,6 +31,7 @@ export interface Move {
 	player: string
 }
 
+/** a game turn */
 export interface Turn {
 	/** there might be other action kinds eventually */
 	action: Move
@@ -49,7 +51,7 @@ export interface GameSave {
 	history: Turn[]
 }
 
-/** Seeing as React likes immutability more, I am starting to wonder if I should convert GameState back to entity-component like rather than a class */
+/** adds a bunch of functionality a Game conceptually needs besides its state */
 export class Game {
 	/** internal game state */
 	protected _state: MetaBoardState
@@ -64,10 +66,10 @@ export class Game {
 		return this._state.config
 	}
 
-	/** array of 0 to size**2, useful for iterating */
+	/** readonly array of 0 to size**2, useful for iterating */
 	sizeArr: readonly number[]
 
-	/** current turn */
+	/** the current turn */
 	get turn() {
 		return this._turn
 	}
@@ -78,14 +80,17 @@ export class Game {
 		return this._history.length
 	}
 
+	/** the current turn's player */
 	get currentPlayer() {
 		return this.players[this._turn % this.players.length]
 	}
 
+	/** number of players in the game */
 	get numPlayers() {
 		return this.players.length
 	}
 
+	/** game winner, false if draw, null if no winner yet */
 	get winner() {
 		return this._state.winner
 	}
@@ -96,9 +101,10 @@ export class Game {
 	}
 	protected _history: Turn[]
 
-	/** yes, you can free set the players */
+	/** yes, you can freely set the players */
 	public players: string[]
 
+	/** recreates the Game from an optional GameSave or parts of it */
 	constructor(initialState?: Partial<GameSave>) {
 		const {
 			players = [],
@@ -122,6 +128,11 @@ export class Game {
 			config: this.config,
 			history: this._history,
 		}
+	}
+
+	/** get index of player, used to calculate player color */
+	getPlayerIndex(player: string) {
+		return this.players.indexOf(player)
 	}
 
 	/** follows rules when updating board state recursively */
@@ -250,6 +261,7 @@ export class Game {
 		else return null
 	}
 
+	/** throws a lot of different kinds of errors if move isn't valid */
 	validate(move: Move) {
 		const {
 			coord: [c1, c2],
