@@ -31,4 +31,4 @@ export function Button({ onClick, ...props }: ComponentPropsWithRef<'button'>) {
 }
 
 /** 4 buttons max */
-export const ButtonBar = tw.div`grid w-full grid-cols-4 place-items-center py-2`
+export const ButtonBar = tw.div`grid w-full grid-cols-4 place-items-center py-1`
