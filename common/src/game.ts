@@ -4,7 +4,6 @@
  */
 import { enablePatches, applyPatches, Patch, produceWithPatches } from 'immer'
 export type { Patch } from 'immer'
-import { cloneDeep } from 'lodash'
 
 import { GameConfig, defaultGameConfig } from './config'
 import { GameError } from './enums'
@@ -55,10 +54,9 @@ export interface GameSave {
 export class Game {
 	/** internal game state */
 	protected _state: MetaBoardState
-	/** copy of Game state */
+	/** Game state, supposed to be a clone but performance */
 	get state() {
-		// TODO: reconsider advantages and disadvantages of deepcopying stuff
-		return cloneDeep(this._state)
+		return this._state
 	}
 
 	/** config of this game */

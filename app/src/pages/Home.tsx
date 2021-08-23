@@ -17,8 +17,11 @@ import { RoomContext } from '../providers/RoomProvider'
 import { Button, ButtonBar } from '../components/Misc'
 import { css } from 'twin.macro'
 
+const resetSound = new Audio(require('../assets/audio/reset.mp3'))
+const winSound = new Audio(require('../assets/audio/tada.mp3'))
+
 export default function Home() {
-	const { dispatch } = useContext(RoomContext)
+	const { dispatch, room } = useContext(RoomContext)
 	const [inResetAnim, setInResetAnim] = useState(false)
 
 	const resetGame = () => {
@@ -30,10 +33,17 @@ export default function Home() {
 
 	useEffect(() => {
 		if (inResetAnim) {
+			resetSound.play()
 			const id = setTimeout(() => setInResetAnim(false), 1000)
 			return () => clearTimeout(id)
 		}
 	}, [inResetAnim])
+
+	useEffect(() => {
+		if (room.winner) {
+			winSound.play()
+		}
+	}, [room.winner])
 
 	return (
 		<>
@@ -43,6 +53,7 @@ export default function Home() {
 					Online
 				</Button>
 				<Button disabled>
+					{/* TODO: https://capacitorjs.com/docs/v2/guides/deep-links */}
 					<IoPaperPlaneSharp />
 					Invite
 				</Button>

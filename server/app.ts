@@ -6,6 +6,8 @@ const app = express()
 const server = createServer(app)
 const io = new ioServer(server)
 
+// TODO: metaTTT.. SErVerLEss? Can I run on google firebase??? FREE hoSTinG wIthOUT sLEEP?
+
 const motd = 'Welcome to NEO JHChat'
 
 app.use(express.static('static'))

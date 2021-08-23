@@ -46,8 +46,14 @@ function RoomProviderInternal(
 	)
 
 	useLayoutEffect(() => {
+		//TODO: save recent games goes somewhere here
+		if (room.isOnline) return
 		// initialSave isn't updated
-		setSaveSilent(room.getSave())
+		if (room.winner !== null)
+			setSaveSilent({
+				config: defaultLocalConfig,
+			})
+		else setSaveSilent(room.getSave())
 	}, [room.turn])
 
 	const getPlayerIcon = useCallback(
