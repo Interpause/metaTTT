@@ -11,7 +11,7 @@ export default function App() {
 	return (
 		<div tw='absolute inset-0 overflow-hidden'>
 			<IsogridBackground
-				tw='absolute inset-0 overflow-hidden bg-yellow-500 z-index[-10]'
+				tw='absolute inset-0 overflow-hidden bg-yellow-400 z-index[-10]'
 				rows={4}
 				cols={4}
 			/>

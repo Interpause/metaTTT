@@ -4,6 +4,7 @@ import React, { useContext, useState } from 'react'
 
 import { MetaBoard } from '../components/MetaBoard'
 import { RoomContext } from '../providers/RoomProvider'
+import { Button } from '../components/Button'
 
 export default function Home() {
 	const [state, setState] = useState(true)
@@ -21,7 +22,7 @@ export default function Home() {
 			<button onClick={() => setState(!state)}>{state ? 'On' : 'Off'}</button>
 			<MetaBoard tw='width[90vw] height[90vw] lg:(width[30rem] height[30rem])' />
 
-			<button onClick={resetGame}>Reset</button>
+			<Button onClick={resetGame}>Reset</Button>
 		</>
 	)
 }

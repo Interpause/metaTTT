@@ -1,13 +1,4 @@
-const presets = [
-	[
-		'@babel/preset-env',
-		{
-			useBuiltIns: 'usage',
-			corejs: '3.16.2',
-			modules: false,
-		},
-	],
-]
+const presets = []
 
 const babelrcRoots = '../*'
 
@@ -29,12 +20,19 @@ const plugins = [
 			pragmaFrag: 'React.Fragment',
 		},
 	],
-	'lodash',
 ]
 
 if (process.env.NODE_ENV === 'production') {
-	console.log('[metattt-app] Adding production babel plugins...')
-	plugins.push('transform-remove-console')
+	console.log('[metattt-app] Adding production babel config...')
+	plugins.push('transform-remove-console', 'lodash')
+	presets.push([
+		'@babel/preset-env',
+		{
+			useBuiltIns: 'usage',
+			corejs: '3.16.2',
+			modules: false,
+		},
+	])
 }
 
 module.exports = { presets, plugins, babelrcRoots }

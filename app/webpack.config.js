@@ -62,7 +62,7 @@ const config = {
 		}),
 		isDev && new ReactRefreshWebpackPlugin(),
 		!isDev && new BundleAnalyzerPlugin(),
-		new LodashModuleReplacementPlugin(),
+		!isDev && new LodashModuleReplacementPlugin(),
 		isDev &&
 			new WebpackPluginServe({
 				host: 'localhost',
