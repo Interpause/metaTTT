@@ -9,7 +9,7 @@ import React, {
 import { defaultRoomConfig, Room, RoomConfig, RoomSave } from 'metattt-common'
 import { createInitialState, roomReducer, roomAction } from './roomReducer'
 import { createKey } from './StorageProvider'
-import { DefaultPlayerIcon } from '../components/PlayerIcon'
+import { BasePlayerIcon } from '../components/PlayerIcon'
 
 export const defaultLocalConfig: Readonly<RoomConfig> = {
 	...defaultRoomConfig,
@@ -51,7 +51,7 @@ function RoomProviderInternal(
 	}, [room.turn])
 
 	const getPlayerIcon = useCallback(
-		(pid: string) => <DefaultPlayerIcon color={room.getPlayerColor(pid)} />,
+		(pid: string) => <BasePlayerIcon color={room.getPlayerColor(pid)} />,
 		[],
 	)
 
