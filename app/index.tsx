@@ -9,7 +9,7 @@ const container = document.createElement('div')
 document.body.append(container)
 
 const onInit = async () => {
-	window.screen.orientation.lock('portrait').catch((e) => console.warn(e))
+	window.screen.orientation.lock('portrait').catch(console.warn)
 	await initStorage()
 	// insert anything else you need to do/wait for before starting the app
 	return {}

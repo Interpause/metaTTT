@@ -1,13 +1,24 @@
 import 'twin.macro'
-import React from 'react'
-import { Route, Link } from 'wouter'
+import React, { useEffect } from 'react'
+import { Route } from 'wouter'
 
 import { RoomProvider } from './providers/RoomProvider'
 import { IsogridBackground } from './components/IsogridBackground'
 
 import Home from './pages/Home'
 
+const bgMusic = new Audio(require('./assets/audio/IsoGrid Room.mp3'))
+
 export default function App() {
+	useEffect(() => {
+		bgMusic.loop = true
+		const id = setInterval(() => {
+			bgMusic
+				.play()
+				.then(() => clearInterval(id))
+				.catch(console.warn)
+		}, 1000)
+	}, [])
 	return (
 		<div tw='absolute inset-0 overflow-hidden'>
 			<IsogridBackground

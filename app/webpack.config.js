@@ -51,6 +51,10 @@ const config = {
 					},
 				],
 			},
+			{
+				test: /\.(png|jpg|gif|mp3)$/,
+				type: 'asset',
+			},
 		],
 	},
 	resolve: {
