@@ -61,7 +61,11 @@ const config = {
 			title: 'MetaTTT 3.0 dev',
 		}),
 		isDev && new ReactRefreshWebpackPlugin(),
-		!isDev && new BundleAnalyzerPlugin(),
+		!isDev &&
+			new BundleAnalyzerPlugin({
+				analyzerMode: 'static',
+				reportFilename: '../report.html',
+			}),
 		!isDev && new LodashModuleReplacementPlugin(),
 		isDev &&
 			new WebpackPluginServe({

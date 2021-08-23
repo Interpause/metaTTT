@@ -1,13 +1,22 @@
-import tw from 'twin.macro'
+import 'twin.macro'
 
-import React, { useContext, useState } from 'react'
+import React, { useContext } from 'react'
+import {
+	IoReloadSharp,
+	IoGlobeOutline,
+	IoPaperPlaneSharp,
+	IoExtensionPuzzleSharp,
+	IoStorefrontSharp,
+	IoTimeSharp,
+	IoSettingsSharp,
+	IoStatsChartSharp,
+} from 'react-icons/io5'
 
 import { MetaBoard } from '../components/MetaBoard'
 import { RoomContext } from '../providers/RoomProvider'
-import { Button } from '../components/Button'
+import { Button, ButtonBar } from '../components/Misc'
 
 export default function Home() {
-	const [state, setState] = useState(true)
 	const { dispatch } = useContext(RoomContext)
 	const resetGame = () => {
 		dispatch({
@@ -16,13 +25,44 @@ export default function Home() {
 	}
 	return (
 		<>
-			<h1 css={!state && tw`opacity-0`} tw='text-blue-500 font-bold text-2xl'>
-				Hello world!
-			</h1>
-			<button onClick={() => setState(!state)}>{state ? 'On' : 'Off'}</button>
-			<MetaBoard tw='width[90vw] height[90vw] lg:(width[30rem] height[30rem])' />
+			<ButtonBar tw='absolute top-0'>
+				<Button disabled>
+					<IoGlobeOutline />
+					Online
+				</Button>
+				<Button disabled>
+					<IoPaperPlaneSharp />
+					Invite
+				</Button>
+				<Button disabled>
+					<IoExtensionPuzzleSharp />
+					Puzzles
+				</Button>
+				<Button disabled>
+					<IoStorefrontSharp />
+					Store
+				</Button>
+			</ButtonBar>
+			<MetaBoard tw='absolute m-auto inset-0 width[calc(100vw - 1rem)] height[calc(100vw - 1rem)]' />
 
-			<Button onClick={resetGame}>Reset</Button>
+			<ButtonBar tw='absolute bottom-0'>
+				<Button disabled>
+					<IoSettingsSharp />
+					Settings
+				</Button>
+				<Button disabled>
+					<IoTimeSharp />
+					Timeline
+				</Button>
+				<Button disabled>
+					<IoStatsChartSharp />
+					History
+				</Button>
+				<Button onClick={resetGame}>
+					<IoReloadSharp />
+					Reset
+				</Button>
+			</ButtonBar>
 		</>
 	)
 }
