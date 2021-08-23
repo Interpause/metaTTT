@@ -17,8 +17,8 @@ import { RoomContext } from '../providers/RoomProvider'
 import { Button, ButtonBar } from '../components/Misc'
 import { css } from 'twin.macro'
 
-const resetSound = new Audio(require('../assets/audio/reset.mp3'))
-const winSound = new Audio(require('../assets/audio/tada.mp3'))
+const resetSound = new Audio(require('../../assets/audio/reset.mp3'))
+const winSound = new Audio(require('../../assets/audio/tada.mp3'))
 
 export default function Home() {
 	const { dispatch, room } = useContext(RoomContext)

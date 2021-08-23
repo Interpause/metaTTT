@@ -20,7 +20,7 @@ export const ButtonStyle = css`
 	}
 `
 
-const clickSound = new Audio(require('../assets/audio/click.mp3'))
+const clickSound = new Audio(require('../../assets/audio/click.mp3'))
 
 export function Button({ onClick, ...props }: ComponentPropsWithRef<'button'>) {
 	const handleClick: MouseEventHandler<HTMLButtonElement> = (e) => {

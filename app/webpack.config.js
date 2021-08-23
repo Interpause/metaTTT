@@ -62,7 +62,7 @@ const config = {
 	},
 	plugins: [
 		new HtmlWebpackPlugin({
-			title: 'MetaTTT 3.0 dev',
+			title: 'MetaTTT 3.0 Browser Version',
 		}),
 		isDev && new ReactRefreshWebpackPlugin(),
 		!isDev &&

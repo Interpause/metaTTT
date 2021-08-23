@@ -33,6 +33,6 @@ io.on('connection', (sock) => {
 	})
 })
 
-server.listen(8080, () => {
+server.listen(8000, () => {
 	console.info('Listening on: ', server.address() ?? 'unknown')
 })

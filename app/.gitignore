@@ -14,3 +14,11 @@ report.html
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# auto-generated resources
+assets/res/android/icon
+assets/res/android/splash
+assets/res/ios/icon
+assets/res/ios/splash
+assets/res/windows/icon
+assets/res/windows/splash

@@ -7,7 +7,7 @@ import { IsogridBackground } from './components/IsogridBackground'
 
 import Home from './pages/Home'
 
-const bgMusic = new Audio(require('./assets/audio/IsoGrid Room.mp3'))
+const bgMusic = new Audio(require('../assets/audio/IsoGrid Room.mp3'))
 
 export default function App() {
 	useEffect(() => {
