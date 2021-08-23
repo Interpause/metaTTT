@@ -10,6 +10,8 @@ import {
 	IoTimeSharp,
 	IoSettingsSharp,
 	IoStatsChartSharp,
+	IoArrowRedoSharp,
+	IoArrowUndoSharp,
 } from 'react-icons/io5'
 
 import { MetaBoard } from '../components/MetaBoard'
@@ -28,6 +30,20 @@ export default function Home() {
 		setInResetAnim(true)
 		dispatch({
 			action: 'restartGame',
+		})
+	}
+
+	const redoStep = () => {
+		dispatch({
+			action: 'gotoTurn',
+			turn: Math.min(room.turn + 1, room.totalTurns),
+		})
+	}
+
+	const undoStep = () => {
+		dispatch({
+			action: 'gotoTurn',
+			turn: Math.max(room.turn - 1, 0),
 		})
 	}
 
@@ -82,13 +98,13 @@ export default function Home() {
 					<IoSettingsSharp />
 					Settings
 				</Button>
-				<Button disabled>
-					<IoTimeSharp />
-					Timeline
+				<Button>
+					<IoArrowUndoSharp onClick={undoStep} />
+					Undo
 				</Button>
-				<Button disabled>
-					<IoStatsChartSharp />
-					History
+				<Button onClick={redoStep}>
+					<IoArrowRedoSharp />
+					Redo
 				</Button>
 				<Button onClick={resetGame}>
 					<IoReloadSharp />
@@ -98,3 +114,13 @@ export default function Home() {
 		</>
 	)
 }
+/*
+<Button disabled>
+	<IoTimeSharp />
+	Timeline
+</Button>
+<Button disabled>
+	<IoStatsChartSharp />
+	History
+</Button>
+ */

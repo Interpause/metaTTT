@@ -48,6 +48,8 @@ export interface GameSave {
 	state: MetaBoardState
 	config: GameConfig
 	history: Turn[]
+	/** used internally to sync past state to present */
+	turn: number
 }
 
 /** adds a bunch of functionality a Game conceptually needs besides its state */
@@ -109,13 +111,15 @@ export class Game {
 			history = [],
 			config = defaultGameConfig,
 			state,
+			turn,
 		} = initialState ?? {}
 
 		this._state = state ?? createBoard({ config })
 		this.players = players
 		this._history = history
-		this._turn = history.length
+		this._turn = turn ?? history.length
 		this.sizeArr = Object.freeze([...Array(config.size ** 2).keys()])
+		if (turn !== undefined) this.gotoTurn(history.length)
 	}
 
 	/** get what is needed to save game */
@@ -125,6 +129,7 @@ export class Game {
 			state: this._state,
 			config: this.config,
 			history: this._history,
+			turn: this._turn,
 		}
 	}
 
@@ -148,8 +153,11 @@ export class Game {
 		}
 	}
 
-	/** allows time travel. return Patch[] to allow server to propagate changes to client */
+	/** allows time travel. return Patch[] to allow server to propagate changes to client TODO: redo/undo is funky when changing future from past, why? maybe room/game turns are desynced due to some sort of copy? */
 	gotoTurn(turn: number) {
+		console.log(
+			`target: ${turn}, current: ${this._turn}, total: ${this.totalTurns}`,
+		)
 		if (turn < 0 || turn > this.totalTurns) throw GameError.TURN_OUT_OF_RANGE
 		const isUndo = turn < this._turn
 		let patches = Array<Patch>()

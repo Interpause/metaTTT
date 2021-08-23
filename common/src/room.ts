@@ -41,7 +41,7 @@ export class Room {
 	}
 
 	get totalTurns() {
-		return this.game.history
+		return this.game.totalTurns
 	}
 
 	get currentPlayer() {

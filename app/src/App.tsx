@@ -19,6 +19,9 @@ export default function App() {
 				.catch(console.warn)
 		}, 1000)
 	}, [])
+
+	//TODO: https://codesandbox.io/embed/wouter-animated-transitions-w-reactspring-bfruo
+
 	return (
 		<div tw='absolute inset-0 overflow-hidden'>
 			<IsogridBackground
