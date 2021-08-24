@@ -18,14 +18,32 @@ import { MetaBoard } from '../components/MetaBoard'
 import { RoomContext } from '../providers/RoomProvider'
 import { Button, ButtonBar } from '../components/Misc'
 import { css } from 'twin.macro'
+import { clamp } from 'lodash'
 
 const resetSound = new Audio(require('../../assets/audio/reset.mp3'))
 const winSound = new Audio(require('../../assets/audio/tada.mp3'))
 
+function TurnControl() {
+	const { dispatch, room } = useContext(RoomContext)
+	//TODO: useCallback when callback is passed down or expensive to create, dont use it willy nilly
+	//same with useMemo
+	const setTurn = (t: number) => {
+		dispatch({
+			action: 'gotoTurn',
+			turn: clamp(t, 0, room.totalTurns)
+		})
+	}
+
+	return <div tw='w-full text-center px-8'>
+		<h4 tw='text-xl bg-white p-1 rounded inline-block'>{`Turn ${room.turn}/${room.totalTurns} Total`}</h4>
+		<input tw='block w-full' type='range' value={room.turn} min={0} max={room.totalTurns} onChange={(e) => setTurn(parseInt(e.target.value))} />
+	</div>
+}
+
 export default function Home() {
 	const { dispatch, room } = useContext(RoomContext)
 	const [inResetAnim, setInResetAnim] = useState(false)
-  const [ isTurnControlShown, setTurnControlShown ] = useState(false)
+	const [isTurnControlShown, setTurnControlShown] = useState(false)
 
 
 	const resetGame = () => {
@@ -68,7 +86,6 @@ export default function Home() {
 	return (
 		<>
 			<header tw='absolute top-0 w-full'>
-
 				<ButtonBar>
 					<Button disabled>
 						<IoGlobeOutline />
@@ -101,20 +118,20 @@ export default function Home() {
 			/>
 
 
-			<footer tw='absolute bottom-0 w-full text-center'>
-				<h4 tw='text-xl bg-white p-1 rounded inline-block'>{`Turn ${room.turn}/${room.totalTurns} Total`}</h4>
+			<footer tw='absolute bottom-0 w-full'>
+				{isTurnControlShown && <TurnControl />}
 				<ButtonBar>
 					<Button disabled>
 						<IoSettingsSharp />
 						Settings
 					</Button>
 					<Button>
-						<IoArrowUndoSharp onClick={undoStep} />
-						Undo
+						<IoTimeSharp onClick={() => setTurnControlShown(!isTurnControlShown)} />
+						Timeline
 					</Button>
-					<Button onClick={redoStep}>
-						<IoArrowRedoSharp />
-						Redo
+					<Button disabled>
+						<IoStatsChartSharp />
+						History
 					</Button>
 					<Button onClick={resetGame}>
 						<IoReloadSharp />
