@@ -1,3 +1,18 @@
+/**
+ * State represent a single instant
+ * Player actions transform state to next state
+ * A Game refers to the timeline of these states
+ * After all, changes between state cant be in state itself
+ * It must be stored externally
+ * 
+ * Layers-wise
+ * BoardState -> GameState -> RoomState
+ * GameEngine applies actions to BoardState, emits Turns
+ * Turns stored as GameHistory in GameState
+ * RoomReducer applies actions to GameState (like reset/new game/change config)
+ * RoomState tracks that as RoomHistory
+ */
+
 import { defaultGameConfig, GameConfig } from './config'
 
 /** string for player (userId), null for empty, false for draw (not applicable to squares) (trick used where both null & false are falsy) */
