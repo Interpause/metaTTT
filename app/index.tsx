@@ -8,6 +8,12 @@ import AppStyle from './src/components/AppStyle'
 const container = document.createElement('div')
 document.body.append(container)
 
+// temporary
+const mobileConsole = document.createElement('script')
+mobileConsole.onload = () => (globalThis as any).eruda.init()
+mobileConsole.src = 'https://cdn.jsdelivr.net/npm/eruda'
+document.body.append(mobileConsole)
+
 const onInit = async () => {
 	window.screen.orientation.lock('portrait').catch(console.warn)
 	await initStorage()

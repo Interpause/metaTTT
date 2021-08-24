@@ -49,7 +49,7 @@ export interface GameSave {
 	config: GameConfig
 	history: Turn[]
 	/** used internally to sync past state to present */
-	turn: number
+	tempTurn?: number
 }
 
 /** adds a bunch of functionality a Game conceptually needs besides its state */
@@ -111,15 +111,15 @@ export class Game {
 			history = [],
 			config = defaultGameConfig,
 			state,
-			turn,
+			tempTurn,
 		} = initialState ?? {}
-
+    console.log('initiating...')
 		this._state = state ?? createBoard({ config })
 		this.players = players
 		this._history = history
-		this._turn = turn ?? history.length
+		this._turn = tempTurn ?? history.length
 		this.sizeArr = Object.freeze([...Array(config.size ** 2).keys()])
-		if (turn !== undefined) this.gotoTurn(history.length)
+		if (tempTurn !== undefined) this.gotoTurn(history.length)
 	}
 
 	/** get what is needed to save game */
@@ -129,7 +129,7 @@ export class Game {
 			state: this._state,
 			config: this.config,
 			history: this._history,
-			turn: this._turn,
+			tempTurn: this._turn !== this.totalTurns ? this._turn : undefined,
 		}
 	}
 

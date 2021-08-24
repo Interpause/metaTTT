@@ -2,7 +2,7 @@ import React, { ComponentPropsWithRef, MouseEventHandler } from 'react'
 import tw, { css } from 'twin.macro'
 
 export const ButtonStyle = css`
-	${tw`bg-yellow-500 text-white rounded h-16 w-16 focus:outline-none transition-shadow duration-75`}
+	${tw`bg-yellow-500 text-white rounded h-16 w-16 focus:outline-none`}
 	border: thin solid white;
 	font-size: 90%;
 
@@ -11,7 +11,7 @@ export const ButtonStyle = css`
 		${tw`mx-auto height[60%] width[60%]`}
 	}
 
-	&:active {
+	&:enabled:active {
 		box-shadow: 0 0 0.2rem 0.2rem rgba(0, 0, 0, 0.5) inset;
 	}
 

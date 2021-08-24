@@ -42,7 +42,10 @@ function RoomProviderInternal(
 	// start off with saved local room
 	const [{ room, thisPlayer }, dispatch] = useReducer(
 		roomReducer,
-		createInitialState(initialSave!),
+		undefined,
+		// createInitialState wasn't memo-ed & being called on rerenders
+		// lazy init fixed this, TODO: check if this fixes wonky timeline
+		() => createInitialState(initialSave!),
 	)
 
 	useLayoutEffect(() => {
