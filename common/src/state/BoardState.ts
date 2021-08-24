@@ -1,6 +1,7 @@
 /**
  * Yes, MetaTTT can be represented as a graph theory tree
  */
+import { cloneDeep, merge } from "lodash";
 import { defaultGameConfig, GameConfig } from "../config";
 
 /**
@@ -8,50 +9,44 @@ import { defaultGameConfig, GameConfig } from "../config";
  * LOCKED means the node is empty but can't be taken
  * DRAW means the node is full but no one took it
  */
-export enum StateEnum {
+export enum NodeEnum {
   OPEN = 'O',
   LOCKED = 'L',
   DRAW = 'D',
 }
 
-/** the state of a Square (terminal node) */
-export interface SquareState {
-  /** the state of the Square */
-  s: StateEnum | number
-}
-
-/** the state of a Board (node) */
-export interface BoardState extends SquareState {
+/** the state of a Square/Board/MetaBoard (recursion!) */
+export interface NodeState {
+  /** state or player N who has taken the node  */
+  s: NodeEnum | number
   /** the id of that node, equivalent to its position */
-  [N: number]: SquareState | BoardState
+  [N: number]: NodeState
 }
 
-/** the state of a MetaBoard (root node) */
-export interface MetaBoardState extends BoardState {
-}
+/** creates an empty board using defaultGameConfig & config */
+export function createBoard(config?: Partial<GameConfig>) {
+  const conf = merge(cloneDeep(defaultGameConfig), config)
+  const newNode: NodeState = { s: NodeEnum.OPEN }
+  const sizeArr = [...Array(conf.size ** 2).keys()]
 
-export function createBoard(options?: { config?: GameConfig }) {
-  const { config = defaultGameConfig } = options ?? {}
-  const newNode: SquareState = { s: StateEnum.OPEN }
-  const sizeArr = [...Array(config.size ** 2).keys()]
-
+  //TODO: in true recursive fashion, this is depth=2... how to go deeper?
   return {
     ...newNode,
     ...sizeArr.map(() => ({
       ...newNode,
       ...sizeArr.map(() => newNode)
     }))
-  } as MetaBoardState
+  } as NodeState
 }
 
-const isTaken = ({ s }: SquareState) => s === StateEnum.DRAW || typeof s === 'number'
-const isOpen = ({ s }: SquareState) => s === StateEnum.OPEN
-const isLocked = ({ s }: SquareState) => s === StateEnum.LOCKED || isTaken({ s })
-const getTaker = ({ s }: SquareState) => isTaken({ s }) ? s : null
+const isTaken = ({ s }: NodeState) => s === NodeEnum.DRAW || typeof s === 'number'
+const isOpen = ({ s }: NodeState) => s === NodeEnum.OPEN
+const isLocked = ({ s }: NodeState) => s === NodeEnum.LOCKED || isTaken({ s })
+const getTaker = ({ s }: NodeState) => isTaken({ s }) ? s : null
 
 /** Trying to make all state API style so easier to modify how it works in the future without rewriting UI/server code */
 export default {
-  isOpen, isTaken, isLocked, getTaker, createBoard, StateEnum
+  isOpen, isTaken, isLocked, getTaker, createBoard, NodeEnum
 }
 
 //Dont do recursive locks anymore, just lock at the Board level so patches are smaller
