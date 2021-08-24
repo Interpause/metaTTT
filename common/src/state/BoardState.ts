@@ -28,10 +28,6 @@ export interface BoardState extends SquareState {
 
 /** the state of a MetaBoard (root node) */
 export interface MetaBoardState extends BoardState {
-  /** the position of the currently unlocked board. null means all boards are open. */
-  openBoard: number | null
-  /** the game config */
-  config: GameConfig
 }
 
 export function createBoard(options?: { config?: GameConfig }) {
@@ -40,8 +36,6 @@ export function createBoard(options?: { config?: GameConfig }) {
   const sizeArr = [...Array(config.size ** 2).keys()]
 
   return {
-    config,
-    openBoard: null,
     ...newNode,
     ...sizeArr.map(() => ({
       ...newNode,
@@ -59,3 +53,18 @@ const getTaker = ({ s }: SquareState) => isTaken({ s }) ? s : null
 export default {
   isOpen, isTaken, isLocked, getTaker, createBoard, StateEnum
 }
+
+//Dont do recursive locks anymore, just lock at the Board level so patches are smaller
+//This is overoptimization
+//Using s for state makes it damn obvious when you are directly accessing rather than using your API
+//I just did the same for the other props... good luck me, API access should be damm obvious now
+//only code in common is allowed to bypass API access
+/**
+ * seriously think about what belong in boardState vs gameState
+ * I dont think config should be in boardState, it shouldnt change action to action
+ * so config should be either gameState or even roomState
+ * currentBoard might not be necessary at all; after all currentBoard should already be open due to previous turn
+ * turn might be gameState level
+ * BoardState could be bare minimum to render GUI, keep track of state
+ * turn and history might be gameState level
+ */
