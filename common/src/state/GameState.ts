@@ -1,7 +1,7 @@
 import { Patch, enablePatches } from "immer";
 import { defaultGameConfig, GameConfig } from "../config/GameConfig";
 import { GameError } from "../enums";
-import { Move } from "../reducers/GameReducer";
+import { Move } from "../reducers/BoardReducer";
 import { createBoard, NodeState, bUtil, NodeEnum } from "./BoardState";
 export type { Patch } from "immer";
 enablePatches()
