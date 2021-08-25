@@ -39,20 +39,17 @@ export function createBoard(config?: Partial<BoardConfig>) {
 }
 
 /** returns functions for inspecting board state */
-export function nodeWrapper({ s, ...children }: NodeState) {
-  const isTaken = () => s === NodeEnum.DRAW || typeof s === 'number'
-  const isOpen = () => s === NodeEnum.OPEN
-  const isLocked = () => s === NodeEnum.LOCKED || isTaken()
-  const getTaker = () => isTaken() ? s : undefined
-  const getChildren = () => {
+export const bUtil = {
+  /** either the node is taken or is a draw */
+  isFull: ({s}:NodeState) => s === NodeEnum.DRAW || typeof s === 'number',
+  /** node is locked or otherwise full */
+  isLocked: ({s}:NodeState) => s === NodeEnum.LOCKED || s === NodeEnum.DRAW || typeof s === 'number',
+  /** returns player N that took the node else undefined */
+  getTaker: ({s}:NodeState) => typeof s === 'number' ? s : undefined,
+  /** return the child nodes else undefined if none */
+  getChildren: ({s,...children}:NodeState) => {
     for(let _ in children) return children
   }
-
-  return { isTaken, isOpen, isLocked, getTaker, getChildren }
-}
-
-export default {
-  createBoard, nodeWrapper, NodeEnum
 }
 
 //Dont do recursive locks anymore, just lock at the Board level so patches are smaller

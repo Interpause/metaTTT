@@ -3,7 +3,7 @@ export interface BoardConfig {
   /** the size of the board */
   size: number
   /** the recursive depth of the board */
-  depth: number
+  depth: 2 // can everything be recursive one day?
 }
 
 export const defaultBoardConfig = {
