@@ -27,7 +27,7 @@ export interface NodeState {
 export function createBoard(config?: Partial<BoardConfig>) {
   const { size, depth } = { ...defaultBoardConfig, ...config }
 
-  const rootNode: NodeState = { s: NodeEnum.OPEN }
+  const rootNode: NodeState  = { s: NodeEnum.OPEN }
   const queue = [rootNode]
 
   for (let i = 0; i < depth; i++)
@@ -35,22 +35,24 @@ export function createBoard(config?: Partial<BoardConfig>) {
       for (let n = 0; n < size ** 2; n++)
         queue.push(node[n] = { s: NodeEnum.OPEN })
 
-  console.log(rootNode)
   return rootNode
 }
 
 /** returns functions for inspecting board state */
-export function boardWrapper({ s, ...children }: NodeState) {
+export function nodeWrapper({ s, ...children }: NodeState) {
   const isTaken = () => s === NodeEnum.DRAW || typeof s === 'number'
   const isOpen = () => s === NodeEnum.OPEN
   const isLocked = () => s === NodeEnum.LOCKED || isTaken()
-  const getTaker = () => isTaken() ? s : null
+  const getTaker = () => isTaken() ? s : undefined
+  const getChildren = () => {
+    for(let _ in children) return children
+  }
 
-  return { isTaken, isOpen, isLocked, getTaker }
+  return { isTaken, isOpen, isLocked, getTaker, getChildren }
 }
 
 export default {
-  createBoard, boardWrapper, NodeEnum
+  createBoard, nodeWrapper, NodeEnum
 }
 
 //Dont do recursive locks anymore, just lock at the Board level so patches are smaller

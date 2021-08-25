@@ -9,4 +9,4 @@ export interface BoardConfig {
 export const defaultBoardConfig = {
   size: 3,
   depth: 2,
-}
+} as Readonly<BoardConfig>
