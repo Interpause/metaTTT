@@ -1,6 +1,7 @@
 {
   "name": "metattt",
   "version": "0.1.0",
+  "type":"module",
   "description": "MetaTTT with online multiplayer & more!",
   "repository": "https://github.com/Interpause/metaTTT.git",
   "author": "John-Henry Lim <hyphen@interpause.dev> (https://interpause.dev/)",
