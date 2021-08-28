@@ -30,21 +30,29 @@ function TurnControl() {
 	const setTurn = (t: number) => {
 		dispatch({
 			action: 'gotoTurn',
-			turn: clamp(t, 0, room.totalTurns)
+			turn: clamp(t, 0, room.totalTurns),
 		})
 	}
 
-	return <div tw='w-full text-center px-8'>
-		<h4 tw='text-xl bg-white p-1 rounded inline-block'>{`Turn ${room.turn}/${room.totalTurns} Total`}</h4>
-		<input tw='block w-full' type='range' value={room.turn} min={0} max={room.totalTurns} onChange={(e) => setTurn(parseInt(e.target.value))} />
-	</div>
+	return (
+		<div tw='w-full text-center px-8'>
+			<h4 tw='text-xl bg-white p-1 rounded inline-block'>{`Turn ${room.turn}/${room.totalTurns} Total`}</h4>
+			<input
+				tw='block w-full'
+				type='range'
+				value={room.turn}
+				min={0}
+				max={room.totalTurns}
+				onChange={(e) => setTurn(parseInt(e.target.value))}
+			/>
+		</div>
+	)
 }
 
 export default function Home() {
 	const { dispatch, room } = useContext(RoomContext)
 	const [inResetAnim, setInResetAnim] = useState(false)
 	const [isTurnControlShown, setTurnControlShown] = useState(false)
-
 
 	const resetGame = () => {
 		setInResetAnim(true)
@@ -116,8 +124,7 @@ export default function Home() {
 					`
 				}
 			/>
-
-
+			
 			<footer tw='absolute bottom-0 w-full'>
 				{isTurnControlShown && <TurnControl />}
 				<ButtonBar>
@@ -126,7 +133,9 @@ export default function Home() {
 						Settings
 					</Button>
 					<Button>
-						<IoTimeSharp onClick={() => setTurnControlShown(!isTurnControlShown)} />
+						<IoTimeSharp
+							onClick={() => setTurnControlShown(!isTurnControlShown)}
+						/>
 						Timeline
 					</Button>
 					<Button disabled>
