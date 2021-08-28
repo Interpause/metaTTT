@@ -62,6 +62,7 @@ export default function Home() {
 	}
 
 	const redoStep = () => {
+		console.log('beep redo')
 		dispatch({
 			action: 'gotoTurn',
 			turn: Math.min(room.turn + 1, room.totalTurns),
@@ -69,6 +70,7 @@ export default function Home() {
 	}
 
 	const undoStep = () => {
+		console.log('beep undo')
 		dispatch({
 			action: 'gotoTurn',
 			turn: Math.max(room.turn - 1, 0),
@@ -91,25 +93,27 @@ export default function Home() {
 
 	return (
 		<>
-			<ButtonBar tw='absolute top-0'>
-				<Button disabled>
-					<IoGlobeOutline />
-					Online
-				</Button>
-				<Button disabled>
-					{/* TODO: https://capacitorjs.com/docs/v2/guides/deep-links */}
-					<IoPaperPlaneSharp />
-					Invite
-				</Button>
-				<Button disabled>
-					<IoExtensionPuzzleSharp />
-					Puzzles
-				</Button>
-				<Button disabled>
-					<IoStorefrontSharp />
-					Store
-				</Button>
-			</ButtonBar>
+			<header tw='absolute top-0 w-full'>
+				<ButtonBar>
+					<Button disabled>
+						<IoGlobeOutline />
+						Online
+					</Button>
+					<Button disabled>
+						{/* TODO: https://capacitorjs.com/docs/v2/guides/deep-links */}
+						<IoPaperPlaneSharp />
+						Invite
+					</Button>
+					<Button disabled>
+						<IoExtensionPuzzleSharp />
+						Puzzles
+					</Button>
+					<Button disabled>
+						<IoStorefrontSharp />
+						Store
+					</Button>
+				</ButtonBar>
+			</header>
 
 			<MetaBoard
 				tw='absolute m-auto inset-0 width[calc(100vw - 1rem)] height[calc(100vw - 1rem)]'
@@ -120,7 +124,7 @@ export default function Home() {
 					`
 				}
 			/>
-
+			
 			<footer tw='absolute bottom-0 w-full'>
 				{isTurnControlShown && <TurnControl />}
 				<ButtonBar>
