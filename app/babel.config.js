@@ -29,7 +29,7 @@ if (process.env.NODE_ENV === 'production') {
 		'@babel/preset-env',
 		{
 			useBuiltIns: 'usage',
-			corejs: '3.16.2',
+			corejs: '3.16.3',
 			modules: false,
 		},
 	])
