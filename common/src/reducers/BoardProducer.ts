@@ -1,3 +1,6 @@
+import { produce, enablePatches, Patch } from "immer"
+export type { Patch } from "immer"
+enablePatches()
 import { NodeState } from "../state/BoardState"
 import { GameState } from "../state/GameState"
 
@@ -14,19 +17,21 @@ export type Move = {
   coord: [number, number]
   player: number
 }
+
 export type BoardAction = {
   action: BoardActionEnum.PLACE
   move: [number, number]
 }
 
-export function createBoardReducer(game: GameState){
-  return (ini: NodeState, action: BoardAction) => {
-    switch(action.action){
-      case BoardActionEnum.PLACE:
-        break
-    }
-    return ini
-  }
+// validate probably is in GameReducer, which then calls BoardProducer
+
+/** has side effect where game gets Turns added to its history */
+export function getBoardProducer(game: GameState){
+  produce((draft:NodeState, action:BoardAction) => {
+  },
+  undefined,
+  //Patch listener.
+  )
 }
 
 /**
@@ -34,4 +39,8 @@ export function createBoardReducer(game: GameState){
  * should it therefore be called BoardReducer instead?
  * then GameReducer deals with changing Game like add players, change config
  * ...no roomReducer?? or is this third layer controlled by the server?
+ * is boardReducer recreated for each game? maybe.
+ * probably isnt used directly by any context, is embedded into higher layer reducer
+ * as all state is immutable, this reducer has to be recreated each time
+ * soo getBoardReducer(gameStateDraft) ig
  */
